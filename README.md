@@ -65,7 +65,7 @@ This probability distribution creates a natural "drift" toward certain direction
 5. Click **Install**
 
 ### Method 2: Manual Installation
-1. Download the latest release from [GitHub Releases](https://github.com/hexflower-engine/hexflower-engine/releases)
+1. Download the latest release from [GitHub Releases](https://github.com/Felipe-Alves-VNGX/hexflower-engine/releases)
 2. Extract the zip file to your `Data/modules` folder
 3. Restart Foundry VTT
 4. Enable the module in your world
@@ -73,7 +73,7 @@ This probability distribution creates a natural "drift" toward certain direction
 ### Method 3: Manifest URL
 Use this URL in Foundry's module installer:
 ```
-https://github.com/hexflower-engine/hexflower-engine/releases/latest/download/module.json
+https://github.com/Felipe-Alves-VNGX/hexflower-engine/releases/latest/download/module.json
 ```
 
 ## Usage
@@ -231,8 +231,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/hexflower-engine/hexflower-engine/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/hexflower-engine/hexflower-engine/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Felipe-Alves-VNGX/hexflower-engine/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Felipe-Alves-VNGX/hexflower-engine/discussions)
 
 ## Changelog
 
