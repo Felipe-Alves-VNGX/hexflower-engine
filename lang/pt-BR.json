@@ -1,0 +1,83 @@
+{
+  "HEXFLOWER": {
+    "DefaultName": "Novo Hex Flower",
+    
+    "Settings": {
+      "DefaultRadius": {
+        "Name": "Raio Padrão",
+        "Hint": "O raio padrão para novos hex flowers criados (1-5)"
+      },
+      "ShowNavigationRoll": {
+        "Name": "Mostrar Rolagem de Navegação",
+        "Hint": "Exibir a rolagem de navegação 2d6 no chat"
+      },
+      "EnableEdgeWrapping": {
+        "Name": "Habilitar Envolvimento de Borda",
+        "Hint": "Ao atingir uma borda, ir para o lado oposto ao invés de permanecer no lugar"
+      },
+      "AnimateMovement": {
+        "Name": "Animar Movimento",
+        "Hint": "Mostrar animação ao mover entre hexágonos"
+      }
+    },
+    
+    "Controls": {
+      "OpenHexFlower": "Abrir Motor Hex Flower"
+    },
+    
+    "Dialog": {
+      "Title": "Motor Hex Flower",
+      "SelectHexFlower": "-- Selecione um Hex Flower --",
+      "CreateNew": "Criar Novo",
+      "Navigate": "Navegar (2d6)",
+      "Reset": "Reiniciar",
+      "Export": "Exportar",
+      "Import": "Importar",
+      "CurrentHex": "Hex Atual",
+      "Position": "Posição",
+      "Label": "Rótulo",
+      "Content": "Conteúdo",
+      "History": "Histórico de Movimento",
+      "Probabilities": "Probabilidades de Navegação",
+      "NavigationKey": "Chave de Navegação (2d6)",
+      "EmptyState": "Selecione ou crie um Hex Flower para começar"
+    },
+    
+    "HexEditor": {
+      "Title": "Editar Hex",
+      "Coordinates": "Coordenadas",
+      "Label": "Rótulo",
+      "LabelPlaceholder": "Digite um rótulo curto...",
+      "Content": "Conteúdo",
+      "ContentPlaceholder": "Digite o conteúdo ou descrição do hex...",
+      "Color": "Cor",
+      "Save": "Salvar"
+    },
+    
+    "Directions": {
+      "a": "Norte (12)",
+      "b": "Nordeste (2-3)",
+      "c": "Sudeste (4-5)",
+      "d": "Sul (6-7)",
+      "e": "Sudoeste (8-9)",
+      "f": "Noroeste (10-11)"
+    },
+    
+    "Chat": {
+      "NavigationRoll": "Rolagem de Navegação: Movendo {direction}"
+    },
+    
+    "Notifications": {
+      "EdgeReached": "Borda atingida - permanecendo no hex atual"
+    },
+    
+    "Warnings": {
+      "NoHexFlowerSelected": "Por favor, selecione um Hex Flower primeiro"
+    },
+    
+    "Errors": {
+      "HexFlowerNotFound": "Hex Flower não encontrado",
+      "ImportFailed": "Falha ao importar dados do Hex Flower"
+    }
+  }
+}

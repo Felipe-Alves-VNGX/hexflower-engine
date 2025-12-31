@@ -1,0 +1,124 @@
+<div class="hexflower-dialog-content">
+  {{!-- Controls Panel --}}
+  <div class="hexflower-controls">
+    <select class="hexflower-select" name="hexflower-select">
+      <option value="">{{localize "HEXFLOWER.Dialog.SelectHexFlower"}}</option>
+      {{#each hexFlowers}}
+        <option value="{{this.id}}" {{#if (hexflower-eq this.id ../selectedHexFlower.id)}}selected{{/if}}>
+          {{this.name}}
+        </option>
+      {{/each}}
+    </select>
+    
+    <button type="button" class="create-hexflower">
+      <i class="fas fa-plus"></i>
+      {{localize "HEXFLOWER.Dialog.CreateNew"}}
+    </button>
+    
+    <button type="button" class="navigate-btn" {{#unless selectedHexFlower}}disabled{{/unless}}>
+      <i class="fas fa-dice"></i>
+      {{localize "HEXFLOWER.Dialog.Navigate"}}
+    </button>
+    
+    <button type="button" class="reset-btn" {{#unless selectedHexFlower}}disabled{{/unless}}>
+      <i class="fas fa-undo"></i>
+      {{localize "HEXFLOWER.Dialog.Reset"}}
+    </button>
+    
+    <button type="button" class="export-btn" {{#unless selectedHexFlower}}disabled{{/unless}}>
+      <i class="fas fa-download"></i>
+      {{localize "HEXFLOWER.Dialog.Export"}}
+    </button>
+    
+    <button type="button" class="import-btn">
+      <i class="fas fa-upload"></i>
+      {{localize "HEXFLOWER.Dialog.Import"}}
+    </button>
+  </div>
+
+  {{#if selectedHexFlower}}
+    {{!-- Hex Flower Grid --}}
+    <div class="hexflower-grid" data-hexflower-id="{{selectedHexFlower.id}}">
+      {{#each selectedHexFlower.hexes}}
+        <div class="hex-cell 
+          {{#if (hexflower-eq this.q ../selectedHexFlower.currentPosition.q)}}
+            {{#if (hexflower-eq this.r ../selectedHexFlower.currentPosition.r)}}current{{/if}}
+          {{/if}}
+          {{#if (hexflower-eq this.q 0)}}{{#if (hexflower-eq this.r 0)}}center{{/if}}{{/if}}"
+          data-q="{{this.q}}" 
+          data-r="{{this.r}}"
+          {{#if this.color}}style="background-color: {{this.color}}"{{/if}}>
+          <span class="hex-cell-content">{{this.label}}</span>
+          <span class="hex-cell-coords">({{this.q}},{{this.r}})</span>
+        </div>
+      {{/each}}
+    </div>
+
+    {{!-- Current Hex Info --}}
+    {{#if currentHex}}
+      <div class="hexflower-info">
+        <h3>{{localize "HEXFLOWER.Dialog.CurrentHex"}}</h3>
+        <div class="hexflower-info-item">
+          <label>{{localize "HEXFLOWER.Dialog.Position"}}:</label>
+          <span>({{currentHex.q}}, {{currentHex.r}})</span>
+        </div>
+        {{#if currentHex.label}}
+          <div class="hexflower-info-item">
+            <label>{{localize "HEXFLOWER.Dialog.Label"}}:</label>
+            <span>{{currentHex.label}}</span>
+          </div>
+        {{/if}}
+        {{#if currentHex.content}}
+          <div class="hexflower-info-item">
+            <label>{{localize "HEXFLOWER.Dialog.Content"}}:</label>
+            <span>{{currentHex.content}}</span>
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
+
+    {{!-- History --}}
+    {{#if selectedHexFlower.history.length}}
+      <div class="hexflower-history">
+        <h4>{{localize "HEXFLOWER.Dialog.History"}}</h4>
+        {{#each selectedHexFlower.history}}
+          <div class="history-item">
+            <i class="fas fa-arrow-right"></i>
+            <span>({{this.from.q}},{{this.from.r}}) → ({{this.to.q}},{{this.to.r}})</span>
+            <span class="direction">{{this.direction}}</span>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+  {{else}}
+    {{!-- Empty State --}}
+    <div class="hexflower-empty-state">
+      <p>{{localize "HEXFLOWER.Dialog.EmptyState"}}</p>
+    </div>
+  {{/if}}
+
+  {{!-- Navigation Probabilities --}}
+  <div class="hexflower-probabilities">
+    <h4>{{localize "HEXFLOWER.Dialog.Probabilities"}}</h4>
+    {{#each probabilities}}
+      <div class="probability-item">
+        <div class="direction">{{@key}}</div>
+        <div class="rolls">{{this.rolls}}</div>
+        <div class="percent">{{hexflower-percent this.probability}}</div>
+      </div>
+    {{/each}}
+  </div>
+
+  {{!-- Navigation Key Reference --}}
+  <div class="navigation-key">
+    <h4>{{localize "HEXFLOWER.Dialog.NavigationKey"}}</h4>
+    <div class="nav-key-hex">
+      <div class="nav-key-direction dir-a">a (12)</div>
+      <div class="nav-key-direction dir-b">b (2-3)</div>
+      <div class="nav-key-direction dir-c">c (4-5)</div>
+      <div class="nav-key-direction dir-d">d (6-7)</div>
+      <div class="nav-key-direction dir-e">e (8-9)</div>
+      <div class="nav-key-direction dir-f">f (10-11)</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<form class="hex-editor-form">
+  <div class="form-group">
+    <label>{{localize "HEXFLOWER.HexEditor.Coordinates"}}</label>
+    <p class="hint">Q: {{q}}, R: {{r}}</p>
+  </div>
+
+  <div class="form-group">
+    <label for="hex-label">{{localize "HEXFLOWER.HexEditor.Label"}}</label>
+    <input type="text" id="hex-label" name="label" value="{{hex.label}}" 
+           placeholder="{{localize 'HEXFLOWER.HexEditor.LabelPlaceholder'}}">
+  </div>
+
+  <div class="form-group">
+    <label for="hex-content">{{localize "HEXFLOWER.HexEditor.Content"}}</label>
+    <textarea id="hex-content" name="content" 
+              placeholder="{{localize 'HEXFLOWER.HexEditor.ContentPlaceholder'}}">{{hex.content}}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="hex-color">{{localize "HEXFLOWER.HexEditor.Color"}}</label>
+    <input type="color" id="hex-color" name="color" value="{{hex.color}}">
+  </div>
+
+  <footer class="sheet-footer flexrow">
+    <button type="submit">
+      <i class="fas fa-save"></i>
+      {{localize "HEXFLOWER.HexEditor.Save"}}
+    </button>
+  </footer>
+</form>

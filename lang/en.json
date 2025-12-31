@@ -1,0 +1,83 @@
+{
+  "HEXFLOWER": {
+    "DefaultName": "New Hex Flower",
+    
+    "Settings": {
+      "DefaultRadius": {
+        "Name": "Default Radius",
+        "Hint": "The default radius for newly created hex flowers (1-5)"
+      },
+      "ShowNavigationRoll": {
+        "Name": "Show Navigation Roll",
+        "Hint": "Display the 2d6 navigation roll in chat"
+      },
+      "EnableEdgeWrapping": {
+        "Name": "Enable Edge Wrapping",
+        "Hint": "When reaching an edge, wrap to the opposite side instead of staying in place"
+      },
+      "AnimateMovement": {
+        "Name": "Animate Movement",
+        "Hint": "Show animation when moving between hexes"
+      }
+    },
+    
+    "Controls": {
+      "OpenHexFlower": "Open Hex Flower Engine"
+    },
+    
+    "Dialog": {
+      "Title": "Hex Flower Engine",
+      "SelectHexFlower": "-- Select a Hex Flower --",
+      "CreateNew": "Create New",
+      "Navigate": "Navigate (2d6)",
+      "Reset": "Reset",
+      "Export": "Export",
+      "Import": "Import",
+      "CurrentHex": "Current Hex",
+      "Position": "Position",
+      "Label": "Label",
+      "Content": "Content",
+      "History": "Movement History",
+      "Probabilities": "Navigation Probabilities",
+      "NavigationKey": "Navigation Key (2d6)",
+      "EmptyState": "Select or create a Hex Flower to begin"
+    },
+    
+    "HexEditor": {
+      "Title": "Edit Hex",
+      "Coordinates": "Coordinates",
+      "Label": "Label",
+      "LabelPlaceholder": "Enter a short label...",
+      "Content": "Content",
+      "ContentPlaceholder": "Enter hex content or description...",
+      "Color": "Color",
+      "Save": "Save"
+    },
+    
+    "Directions": {
+      "a": "North (12)",
+      "b": "Northeast (2-3)",
+      "c": "Southeast (4-5)",
+      "d": "South (6-7)",
+      "e": "Southwest (8-9)",
+      "f": "Northwest (10-11)"
+    },
+    
+    "Chat": {
+      "NavigationRoll": "Navigation Roll: Moving {direction}"
+    },
+    
+    "Notifications": {
+      "EdgeReached": "Edge reached - staying in current hex"
+    },
+    
+    "Warnings": {
+      "NoHexFlowerSelected": "Please select a Hex Flower first"
+    },
+    
+    "Errors": {
+      "HexFlowerNotFound": "Hex Flower not found",
+      "ImportFailed": "Failed to import Hex Flower data"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "hexflower-engine",
+  "title": "Hex Flower Engine",
+  "description": "Um motor de Hex Flower para FoundryVTT que permite criar e gerenciar sistemas de eventos procedurais com memória. Hex Flowers são ferramentas versáteis para gerar terreno, clima, encontros e muito mais de forma dinâmica e interconectada.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Hex Flower Engine Contributors",
+      "url": "https://github.com/hexflower-engine"
+    }
+  ],
+  "compatibility": {
+    "minimum": "11",
+    "verified": "12"
+  },
+  "esmodules": [
+    "scripts/hexflower-engine.js"
+  ],
+  "styles": [
+    "styles/hexflower-engine.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    }
+  ],
+  "packs": [
+    {
+      "name": "hexflower-data-journals",
+      "label": "Hex Flower – Data (Journals)",
+      "type": "JournalEntry",
+      "path": "packs/hexflower-data-journals"
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Hex Flower Engine",
+      "sorting": "a",
+      "packs": ["hexflower-data-journals"],
+      "color": "#4a7c59"
+    }
+  ],
+  "url": "https://github.com/hexflower-engine/hexflower-engine",
+  "manifest": "https://github.com/hexflower-engine/hexflower-engine/releases/latest/download/module.json",
+  "download": "https://github.com/hexflower-engine/hexflower-engine/releases/download/v1.0.0/hexflower-engine.zip",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "bugs": "https://github.com/hexflower-engine/hexflower-engine/issues",
+  "changelog": "CHANGELOG.md",
+  "flags": {
+    "hexflower-engine": {
+      "allowModuleConfig": true
+    }
+  }
+}
