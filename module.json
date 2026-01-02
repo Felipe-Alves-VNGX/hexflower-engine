@@ -2,7 +2,7 @@
   "id": "hexflower-engine",
   "title": "Hex Flower Engine",
   "description": "Um motor de Hex Flower para FoundryVTT que permite criar e gerenciar sistemas de eventos procedurais com memória. Hex Flowers são ferramentas versáteis para gerar terreno, clima, encontros e muito mais de forma dinâmica e interconectada.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": [
     {
       "name": "Hex Flower Engine Contributors",
