@@ -180,7 +180,8 @@ class HexFlowerEngine {
           s: -q - r, // Cube coordinate for convenience
           content: null,
           label: '',
-          color: null
+          color: null,
+          visited: false
         });
       }
     }
@@ -236,7 +237,18 @@ class HexFlowerEngine {
       direction = navResult.direction;
     }
 
+    if (!direction) {
+      ui.notifications.warn(game.i18n.localize('HEXFLOWER.Errors.InvalidRoll'));
+      return null;
+    }
+
     const vector = DIRECTION_VECTORS[direction];
+    if (!vector) {
+      ui.notifications.warn(game.i18n.localize('HEXFLOWER.Errors.InvalidRoll'));
+      return null;
+    }
+
+    const previousPosition = { ...hexFlower.currentPosition };
     const newQ = hexFlower.currentPosition.q + vector.q;
     const newR = hexFlower.currentPosition.r + vector.r;
 
@@ -244,12 +256,18 @@ class HexFlowerEngine {
     const targetHex = hexFlower.hexes.find(h => h.q === newQ && h.r === newR);
     
     if (targetHex) {
+      const previousHex = hexFlower.hexes.find(
+        (hex) => hex.q === previousPosition.q && hex.r === previousPosition.r
+      );
+      if (previousHex) previousHex.visited = true;
+
       // Record history
       hexFlower.history.push({
-        from: { ...hexFlower.currentPosition },
+        from: previousPosition,
         to: { q: newQ, r: newR },
         direction: direction,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        wrapped: false
       });
 
       // Update position
@@ -264,7 +282,7 @@ class HexFlowerEngine {
       };
     } else {
       // Handle edge case
-      return this._handleEdgeCase(hexFlower, direction);
+      return this._handleEdgeCase(hexFlower, direction, previousPosition);
     }
   }
 
@@ -272,17 +290,32 @@ class HexFlowerEngine {
    * Handle navigation when hitting the edge of the hex flower
    * @param {Object} hexFlower - The hex flower object
    * @param {string} direction - The attempted direction
+   * @param {Object} previousPosition - Position before attempting movement
    * @returns {Object} Result of edge handling
    * @private
    */
-  _handleEdgeCase(hexFlower, direction) {
+  _handleEdgeCase(hexFlower, direction, previousPosition) {
     const enableWrapping = game.settings.get(MODULE_ID, 'enableEdgeWrapping');
     
     if (enableWrapping) {
       // Find opposite edge hex
       const oppositeHex = this._findOppositeEdgeHex(hexFlower, direction);
       if (oppositeHex) {
+        const previousHex = hexFlower.hexes.find(
+          (hex) => hex.q === previousPosition.q && hex.r === previousPosition.r
+        );
+        if (previousHex) previousHex.visited = true;
+
+        hexFlower.history.push({
+          from: previousPosition,
+          to: { q: oppositeHex.q, r: oppositeHex.r },
+          direction: direction,
+          timestamp: Date.now(),
+          wrapped: true
+        });
+
         hexFlower.currentPosition = { q: oppositeHex.q, r: oppositeHex.r };
+        Hooks.callAll(`${MODULE_ID}.hexFlowerNavigated`, hexFlower, oppositeHex);
         return {
           position: hexFlower.currentPosition,
           hex: oppositeHex,
@@ -298,6 +331,14 @@ class HexFlowerEngine {
     const currentHex = hexFlower.hexes.find(
       h => h.q === hexFlower.currentPosition.q && h.r === hexFlower.currentPosition.r
     );
+
+    hexFlower.history.push({
+      from: previousPosition,
+      to: { ...hexFlower.currentPosition },
+      direction: direction,
+      timestamp: Date.now(),
+      blocked: true
+    });
     
     return {
       position: hexFlower.currentPosition,
@@ -382,6 +423,9 @@ class HexFlowerEngine {
 
     hexFlower.currentPosition = { q: 0, r: 0 };
     hexFlower.history = [];
+    hexFlower.hexes.forEach((hex) => {
+      hex.visited = false;
+    });
     
     Hooks.callAll(`${MODULE_ID}.hexFlowerReset`, hexFlower);
   }
@@ -414,6 +458,10 @@ class HexFlowerEngine {
     try {
       const data = JSON.parse(jsonString);
       data.id = foundry.utils.randomID(); // Generate new ID
+      data.hexes = (data.hexes || []).map((hex) => ({
+        ...hex,
+        visited: Boolean(hex.visited)
+      }));
       this.hexFlowers.set(data.id, data);
       
       Hooks.callAll(`${MODULE_ID}.hexFlowerImported`, data);

@@ -44,6 +44,7 @@
           {{#if (hexflower-eq this.q ../selectedHexFlower.currentPosition.q)}}
             {{#if (hexflower-eq this.r ../selectedHexFlower.currentPosition.r)}}current{{/if}}
           {{/if}}
+          {{#if this.visited}}visited{{/if}}
           {{#if (hexflower-eq this.q 0)}}{{#if (hexflower-eq this.r 0)}}center{{/if}}{{/if}}"
           data-q="{{this.q}}" 
           data-r="{{this.r}}"
