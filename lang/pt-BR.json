@@ -77,7 +77,8 @@
     
     "Errors": {
       "HexFlowerNotFound": "Hex Flower não encontrado",
-      "ImportFailed": "Falha ao importar dados do Hex Flower"
+      "ImportFailed": "Falha ao importar dados do Hex Flower",
+      "InvalidRoll": "Resultado de rolagem de navegação inválido"
     }
   }
 }

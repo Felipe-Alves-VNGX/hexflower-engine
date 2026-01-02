@@ -77,7 +77,8 @@
     
     "Errors": {
       "HexFlowerNotFound": "Hex Flower not found",
-      "ImportFailed": "Failed to import Hex Flower data"
+      "ImportFailed": "Failed to import Hex Flower data",
+      "InvalidRoll": "Navigation roll is invalid"
     }
   }
 }
