@@ -158,6 +158,7 @@ class HexFlowerEngine {
         title: game.i18n.localize('HEXFLOWER.Controls.OpenHexFlower'),
         icon: 'fas fa-hexagon',
         button: true,
+        visible: game.user.role >= CONST.USER_ROLES.ASSISTANT,
         onClick: () => this.openHexFlowerDialog()
       });
     }
