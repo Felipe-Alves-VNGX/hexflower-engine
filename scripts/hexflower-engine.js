@@ -56,6 +56,7 @@ class HexFlowerEngine {
     console.log(`${MODULE_ID} | Initializing Hex Flower Engine`);
     this._registerSettings();
     this._registerHooks();
+    await this._loadData();
   }
 
   /**
@@ -103,6 +104,35 @@ class HexFlowerEngine {
       type: Boolean,
       default: true
     });
+
+    // Hidden setting for data persistence
+    game.settings.register(MODULE_ID, 'hexFlowerData', {
+      scope: 'world',
+      config: false,
+      type: Object,
+      default: []
+    });
+  }
+
+  /**
+   * Load saved data
+   * @private
+   */
+  async _loadData() {
+    const data = game.settings.get(MODULE_ID, 'hexFlowerData');
+    if (data && Array.isArray(data)) {
+      this.hexFlowers = new Map(data);
+      console.log(`${MODULE_ID} | Loaded ${this.hexFlowers.size} Hex Flowers`);
+    }
+  }
+
+  /**
+   * Save data to settings
+   * @private
+   */
+  async _saveData() {
+    const data = Array.from(this.hexFlowers.entries());
+    await game.settings.set(MODULE_ID, 'hexFlowerData', data);
   }
 
   /**
@@ -154,9 +184,10 @@ class HexFlowerEngine {
     };
 
     this.hexFlowers.set(hexFlower.id, hexFlower);
-    
+    this._saveData();
+
     Hooks.callAll(`${MODULE_ID}.hexFlowerCreated`, hexFlower);
-    
+
     return hexFlower;
   }
 
@@ -168,11 +199,11 @@ class HexFlowerEngine {
    */
   _generateHexGrid(radius) {
     const hexes = [];
-    
+
     for (let q = -radius; q <= radius; q++) {
       const r1 = Math.max(-radius, -q - radius);
       const r2 = Math.min(radius, -q + radius);
-      
+
       for (let r = r1; r <= r2; r++) {
         hexes.push({
           q: q,
@@ -184,7 +215,7 @@ class HexFlowerEngine {
         });
       }
     }
-    
+
     return hexes;
   }
 
@@ -195,10 +226,10 @@ class HexFlowerEngine {
   async rollNavigation() {
     const roll = new Roll('2d6');
     await roll.evaluate();
-    
+
     const total = roll.total;
     const direction = NAVIGATION_KEY[total];
-    
+
     if (game.settings.get(MODULE_ID, 'showNavigationRoll')) {
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker(),
@@ -207,7 +238,7 @@ class HexFlowerEngine {
         })
       });
     }
-    
+
     return {
       total: total,
       direction: direction,
@@ -242,7 +273,7 @@ class HexFlowerEngine {
 
     // Check if new position is within bounds
     const targetHex = hexFlower.hexes.find(h => h.q === newQ && h.r === newR);
-    
+
     if (targetHex) {
       // Record history
       hexFlower.history.push({
@@ -255,6 +286,7 @@ class HexFlowerEngine {
       // Update position
       hexFlower.currentPosition = { q: newQ, r: newR };
 
+      this._saveData();
       Hooks.callAll(`${MODULE_ID}.hexFlowerNavigated`, hexFlower, targetHex);
 
       return {
@@ -277,12 +309,27 @@ class HexFlowerEngine {
    */
   _handleEdgeCase(hexFlower, direction) {
     const enableWrapping = game.settings.get(MODULE_ID, 'enableEdgeWrapping');
-    
+
     if (enableWrapping) {
-      // Find opposite edge hex
-      const oppositeHex = this._findOppositeEdgeHex(hexFlower, direction);
+      // Use antipodal wrapping (opposite side of the grid)
+      const oppositeQ = -hexFlower.currentPosition.q;
+      const oppositeR = -hexFlower.currentPosition.r;
+
+      const oppositeHex = hexFlower.hexes.find(h => h.q === oppositeQ && h.r === oppositeR);
+
       if (oppositeHex) {
-        hexFlower.currentPosition = { q: oppositeHex.q, r: oppositeHex.r };
+        // Record history for jump
+        hexFlower.history.push({
+          from: { ...hexFlower.currentPosition },
+          to: { q: oppositeQ, r: oppositeR },
+          direction: direction,
+          type: 'wrap',
+          timestamp: Date.now()
+        });
+
+        hexFlower.currentPosition = { q: oppositeQ, r: oppositeR };
+        this._saveData();
+
         return {
           position: hexFlower.currentPosition,
           hex: oppositeHex,
@@ -291,50 +338,20 @@ class HexFlowerEngine {
         };
       }
     }
-    
-    // Stay in place if no wrapping
+
+    // Stay in place if no wrapping or antipodal hex not found
     ui.notifications.info(game.i18n.localize('HEXFLOWER.Notifications.EdgeReached'));
-    
+
     const currentHex = hexFlower.hexes.find(
       h => h.q === hexFlower.currentPosition.q && h.r === hexFlower.currentPosition.r
     );
-    
+
     return {
       position: hexFlower.currentPosition,
       hex: currentHex,
       direction: direction,
       blocked: true
     };
-  }
-
-  /**
-   * Find the hex on the opposite edge for wrapping
-   * @param {Object} hexFlower - The hex flower object
-   * @param {string} direction - The direction of movement
-   * @returns {Object|null} The opposite edge hex or null
-   * @private
-   */
-  _findOppositeEdgeHex(hexFlower, direction) {
-    const oppositeDirections = {
-      a: 'd', b: 'e', c: 'f',
-      d: 'a', e: 'b', f: 'c'
-    };
-    
-    const oppositeDir = oppositeDirections[direction];
-    const vector = DIRECTION_VECTORS[oppositeDir];
-    
-    // Find edge hexes in the opposite direction
-    const edgeHexes = hexFlower.hexes.filter(hex => {
-      const nextQ = hex.q + vector.q;
-      const nextR = hex.r + vector.r;
-      return !hexFlower.hexes.find(h => h.q === nextQ && h.r === nextR);
-    });
-    
-    if (edgeHexes.length > 0) {
-      return edgeHexes[Math.floor(Math.random() * edgeHexes.length)];
-    }
-    
-    return null;
   }
 
   /**
@@ -353,7 +370,8 @@ class HexFlowerEngine {
       hex.content = content.content || hex.content;
       hex.label = content.label || hex.label;
       hex.color = content.color || hex.color;
-      
+
+      this._saveData();
       Hooks.callAll(`${MODULE_ID}.hexContentUpdated`, hexFlower, hex);
     }
   }
@@ -382,7 +400,8 @@ class HexFlowerEngine {
 
     hexFlower.currentPosition = { q: 0, r: 0 };
     hexFlower.history = [];
-    
+
+    this._saveData();
     Hooks.callAll(`${MODULE_ID}.hexFlowerReset`, hexFlower);
   }
 
@@ -415,9 +434,10 @@ class HexFlowerEngine {
       const data = JSON.parse(jsonString);
       data.id = foundry.utils.randomID(); // Generate new ID
       this.hexFlowers.set(data.id, data);
-      
+      this._saveData();
+
       Hooks.callAll(`${MODULE_ID}.hexFlowerImported`, data);
-      
+
       return data;
     } catch (error) {
       console.error(`${MODULE_ID} | Error importing hex flower:`, error);
@@ -432,20 +452,27 @@ class HexFlowerEngine {
    */
   getNavigationProbabilities() {
     return {
-      a: { rolls: [12], probability: 1/36 },           // ~2.78%
-      b: { rolls: [2, 3], probability: 3/36 },         // ~8.33%
-      c: { rolls: [4, 5], probability: 7/36 },         // ~19.44%
-      d: { rolls: [6, 7], probability: 11/36 },        // ~30.56%
-      e: { rolls: [8, 9], probability: 9/36 },         // ~25%
-      f: { rolls: [10, 11], probability: 5/36 }        // ~13.89%
+      a: { rolls: [12], probability: 1 / 36 },           // ~2.78%
+      b: { rolls: [2, 3], probability: 3 / 36 },         // ~8.33%
+      c: { rolls: [4, 5], probability: 7 / 36 },         // ~19.44%
+      d: { rolls: [6, 7], probability: 11 / 36 },        // ~30.56%
+      e: { rolls: [8, 9], probability: 9 / 36 },         // ~25%
+      f: { rolls: [10, 11], probability: 5 / 36 }        // ~13.89%
     };
   }
 }
 
 /**
  * HexFlowerDialog - Application for managing hex flowers
+ *
+ * @extends Application
  */
 class HexFlowerDialog extends Application {
+  /**
+   * Wrapper for the Hex Flower Dialog
+   * @param {HexFlowerEngine} engine - The engine instance
+   * @param {object} options - Application options
+   */
   constructor(engine, options = {}) {
     super(options);
     this.engine = engine;
@@ -468,7 +495,7 @@ class HexFlowerDialog extends Application {
     return {
       hexFlowers: Array.from(this.engine.hexFlowers.values()),
       selectedHexFlower: this.selectedHexFlower,
-      currentHex: this.selectedHexFlower ? 
+      currentHex: this.selectedHexFlower ?
         this.engine.getCurrentHex(this.selectedHexFlower.id) : null,
       probabilities: this.engine.getNavigationProbabilities()
     };
@@ -488,18 +515,18 @@ class HexFlowerDialog extends Application {
 
   async _onCreateHexFlower(event) {
     event.preventDefault();
-    
+
     const hexFlower = this.engine.createHexFlower({
       name: game.i18n.localize('HEXFLOWER.DefaultName')
     });
-    
+
     this.selectedHexFlower = hexFlower;
     this.render();
   }
 
   async _onNavigate(event) {
     event.preventDefault();
-    
+
     if (!this.selectedHexFlower) {
       ui.notifications.warn(game.i18n.localize('HEXFLOWER.Warnings.NoHexFlowerSelected'));
       return;
@@ -511,48 +538,48 @@ class HexFlowerDialog extends Application {
 
   _onReset(event) {
     event.preventDefault();
-    
+
     if (!this.selectedHexFlower) return;
-    
+
     this.engine.resetPosition(this.selectedHexFlower.id);
     this.render();
   }
 
   _onExport(event) {
     event.preventDefault();
-    
+
     if (!this.selectedHexFlower) return;
-    
+
     const json = this.engine.exportToJSON(this.selectedHexFlower.id);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `hexflower-${this.selectedHexFlower.name}.json`;
     a.click();
-    
+
     URL.revokeObjectURL(url);
   }
 
   async _onImport(event) {
     event.preventDefault();
-    
+
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    
+
     input.onchange = async (e) => {
       const file = e.target.files[0];
       const text = await file.text();
       const hexFlower = this.engine.importFromJSON(text);
-      
+
       if (hexFlower) {
         this.selectedHexFlower = hexFlower;
         this.render();
       }
     };
-    
+
     input.click();
   }
 
@@ -564,11 +591,11 @@ class HexFlowerDialog extends Application {
 
   _onHexClick(event) {
     if (!this.selectedHexFlower) return;
-    
+
     const hex = event.currentTarget;
     const q = parseInt(hex.dataset.q);
     const r = parseInt(hex.dataset.r);
-    
+
     // Open hex editor dialog
     new HexEditorDialog(this.engine, this.selectedHexFlower.id, q, r).render(true);
   }
@@ -600,7 +627,7 @@ class HexEditorDialog extends FormApplication {
   getData() {
     const hexFlower = this.engine.hexFlowers.get(this.hexFlowerId);
     const hex = hexFlower?.hexes.find(h => h.q === this.q && h.r === this.r);
-    
+
     return {
       hex: hex,
       q: this.q,
@@ -625,7 +652,7 @@ let hexFlowerEngine;
 
 Hooks.once('init', () => {
   console.log(`${MODULE_ID} | Initializing module`);
-  
+
   // Register Handlebars helpers
   Handlebars.registerHelper('hexflower-eq', (a, b) => a === b);
   Handlebars.registerHelper('hexflower-multiply', (a, b) => a * b);
@@ -634,11 +661,11 @@ Hooks.once('init', () => {
 
 Hooks.once('ready', async () => {
   console.log(`${MODULE_ID} | Module ready`);
-  
+
   // Initialize the engine
   hexFlowerEngine = new HexFlowerEngine();
   await hexFlowerEngine.initialize();
-  
+
   // Expose API
   game.modules.get(MODULE_ID).api = {
     engine: hexFlowerEngine,
@@ -653,10 +680,10 @@ Hooks.once('ready', async () => {
     NAVIGATION_KEY: NAVIGATION_KEY,
     DIRECTION_VECTORS: DIRECTION_VECTORS
   };
-  
+
   // Notify that API is ready
   Hooks.callAll(`${MODULE_ID}.ready`, hexFlowerEngine);
-  
+
   console.log(`${MODULE_ID} | API exposed at game.modules.get('${MODULE_ID}').api`);
 });
 
